@@ -1,6 +1,11 @@
 extends Control
 
 const SAVE_PATH := "user://agenda_clientes.json"
+const LICENSE_PATH := "user://licenca.json"
+const FIRESTORE_BASE_URL := "https://firestore.googleapis.com/v1/projects/agendawhatsapp-d7d0f/databases/(default)/documents/licencas/"
+
+@onready var http_request: HTTPRequest = $HTTPRequest
+
 
 var clientes: Array[Dictionary] = []
 
@@ -14,12 +19,20 @@ var lista_container: VBoxContainer
 var lista_scroll: ScrollContainer
 var status_label: Label
 
+var auth_overlay: ColorRect
+var codigo_input: LineEdit
+var senha_input: LineEdit
+var auth_status_label: Label
+var auth_btn: Button
+var _codigo_pendente: String = ""
+var _senha_pendente: String = ""
 
 func _ready() -> void:
 	_load_data()
 	_ordenar_clientes()
 	_build_interface()
 	_refresh_list()
+	_verificar_licenca_inicial()
 
 
 func _build_interface() -> void:
@@ -36,6 +49,8 @@ func _build_interface() -> void:
 	margin.add_theme_constant_override("margin_top", 20)
 	margin.add_theme_constant_override("margin_bottom", 20)
 	add_child(margin)
+	
+	
 
 	var content_root := VBoxContainer.new()
 	content_root.add_theme_constant_override("separation", 16)
@@ -58,6 +73,20 @@ func _build_interface() -> void:
 	subtitle.add_theme_color_override("font_color", Color("#52645a"))
 	header.add_child(subtitle)
 
+
+	var exit_button := Button.new()
+	exit_button.text = "Sair do app"
+	exit_button.custom_minimum_size = Vector2(0, 46)
+	exit_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	exit_button.add_theme_font_size_override("font_size", 19)
+	exit_button.add_theme_color_override("font_color", Color.WHITE)
+	exit_button.add_theme_stylebox_override("normal", _button_style(Color("#475569")))
+	exit_button.add_theme_stylebox_override("hover", _button_style(Color("#334155")))
+	exit_button.add_theme_stylebox_override("pressed", _button_style(Color("#1e293b")))
+	exit_button.pressed.connect(_on_sair_app_pressed)
+	header.add_child(exit_button)
+	
+	
 	var form_panel := PanelContainer.new()
 	form_panel.add_theme_stylebox_override("panel", _panel_style(Color.WHITE))
 	content_root.add_child(form_panel)
@@ -419,3 +448,193 @@ func _button_style(color: Color) -> StyleBoxFlat:
 	style.content_margin_top = 10
 	style.content_margin_bottom = 10
 	return style
+	
+	
+func _verificar_licenca_inicial() -> void:
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(LICENSE_PATH))
+	if not http_request.request_completed.is_connected(_on_firestore_request_completed):
+		http_request.request_completed.connect(_on_firestore_request_completed)
+	if _licenca_local_valida():
+		return
+
+	_mostrar_tela_login()
+
+
+func _licenca_local_valida() -> bool:
+	if not FileAccess.file_exists(LICENSE_PATH):
+		return false
+
+	var file := FileAccess.open(LICENSE_PATH, FileAccess.READ)
+	if file == null:
+		return false
+
+	var parsed = JSON.parse_string(file.get_as_text())
+	if not (parsed is Dictionary):
+		return false
+
+	var ativo: bool = bool(parsed.get("ativo", false))
+	var expira_em: String = str(parsed.get("expira_em", "")).strip_edges()
+
+	if not ativo:
+		return false
+
+	if expira_em == "":
+		return true
+
+	var hoje := Time.get_datetime_string_from_system(false).substr(0, 10)
+	return hoje <= expira_em
+
+
+func _mostrar_tela_login() -> void:
+	if auth_overlay != null:
+		auth_overlay.visible = true
+		return
+
+	auth_overlay = ColorRect.new()
+	auth_overlay.color = Color(0.08, 0.14, 0.11, 0.88)
+	auth_overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	auth_overlay.z_index = 100
+	add_child(auth_overlay)
+
+	var center := CenterContainer.new()
+	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	auth_overlay.add_child(center)
+
+	var card := PanelContainer.new()
+	card.custom_minimum_size = Vector2(560, 0)
+	card.add_theme_stylebox_override("panel", _panel_style(Color.WHITE))
+	center.add_child(card)
+
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 26)
+	margin.add_theme_constant_override("margin_right", 26)
+	margin.add_theme_constant_override("margin_top", 26)
+	margin.add_theme_constant_override("margin_bottom", 26)
+	card.add_child(margin)
+
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 16)
+	margin.add_child(box)
+
+	var lbl_titulo := Label.new()
+	lbl_titulo.text = "Ativar AgendaWhatsApp"
+	lbl_titulo.add_theme_font_size_override("font_size", 36)
+	lbl_titulo.add_theme_color_override("font_color", Color("#153d2b"))
+	box.add_child(lbl_titulo)
+
+	var lbl_desc := Label.new()
+	lbl_desc.text = "Informe seu código de acesso e senha."
+	lbl_desc.add_theme_font_size_override("font_size", 36)
+	lbl_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	lbl_desc.add_theme_color_override("font_color", Color("#52645a"))
+	box.add_child(lbl_desc)
+
+	codigo_input = LineEdit.new()
+	codigo_input.placeholder_text = "Código (ex.: Nome )"
+	codigo_input.custom_minimum_size = Vector2(0, 56)
+	codigo_input.add_theme_font_size_override("font_size", 36)
+	box.add_child(codigo_input)
+
+	senha_input = LineEdit.new()
+	senha_input.placeholder_text = "Senha"
+	senha_input.secret = true
+	senha_input.custom_minimum_size = Vector2(0, 56)
+	senha_input.add_theme_font_size_override("font_size", 36)
+	box.add_child(senha_input)
+
+	auth_btn = Button.new()
+	auth_btn.text = "Entrar"
+	auth_btn.custom_minimum_size = Vector2(0, 62)
+	auth_btn.add_theme_font_size_override("font_size", 36)
+	auth_btn.add_theme_color_override("font_color", Color.WHITE)
+	auth_btn.add_theme_stylebox_override("normal", _button_style(Color("#16834b")))
+	auth_btn.add_theme_stylebox_override("hover", _button_style(Color("#116b3d")))
+	auth_btn.add_theme_stylebox_override("pressed", _button_style(Color("#0d5832")))
+	auth_btn.pressed.connect(_on_login_pressed)
+	box.add_child(auth_btn)
+
+	auth_status_label = Label.new()
+	auth_status_label.text = ""
+	auth_status_label.add_theme_font_size_override("font_size", 20)
+	auth_status_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	auth_status_label.add_theme_color_override("font_color", Color("#b42318"))
+	box.add_child(auth_status_label)
+
+
+func _on_login_pressed() -> void:
+	var codigo := codigo_input.text.strip_edges()
+	var senha := senha_input.text.strip_edges()
+
+	if codigo == "" or senha == "":
+		auth_status_label.text = "Preencha o código e a senha."
+		return
+
+	_codigo_pendente = codigo
+	_senha_pendente = senha
+	auth_btn.disabled = true
+	auth_status_label.text = "Verificando licença..."
+
+	var url := FIRESTORE_BASE_URL + codigo.uri_encode()
+	var err := http_request.request(url)
+	if err != OK:
+		auth_btn.disabled = false
+		auth_status_label.text = "Falha ao iniciar conexão com o servidor."
+
+
+func _on_firestore_request_completed(result: int, response_code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
+	auth_btn.disabled = false
+
+	if result != HTTPRequest.RESULT_SUCCESS or response_code != 200:
+		auth_status_label.text = "Código inválido ou sem conexão com a internet."
+		return
+
+	var parsed = JSON.parse_string(body.get_string_from_utf8())
+	if not (parsed is Dictionary) or not parsed.has("fields"):
+		auth_status_label.text = "Resposta inválida do servidor."
+		return
+
+	var fields: Dictionary = parsed["fields"]
+	var ativo := false
+	if fields.has("ativo") and fields["ativo"] is Dictionary:
+		ativo = bool(fields["ativo"].get("booleanValue", false))
+
+	var senha_remota := ""
+	if fields.has("senha") and fields["senha"] is Dictionary:
+		senha_remota = str(fields["senha"].get("stringValue", ""))
+
+	var expira_em := ""
+	if fields.has("expira_em") and fields["expira_em"] is Dictionary:
+		expira_em = str(fields["expira_em"].get("stringValue", "")).strip_edges()
+
+	if not ativo:
+		auth_status_label.text = "Esta licença está desativada."
+		return
+
+	if senha_remota != _senha_pendente:
+		auth_status_label.text = "Senha incorreta."
+		return
+
+	if expira_em != "":
+		var hoje := Time.get_datetime_string_from_system(false).substr(0, 10)
+		if hoje > expira_em:
+			auth_status_label.text = "Licença expirada em " + expira_em + "."
+			return
+
+	var dados_licenca := {
+		"codigo": _codigo_pendente,
+		"ativo": ativo,
+		"expira_em": expira_em,
+		"validado_em": Time.get_datetime_string_from_system(false)
+	}
+
+	var file := FileAccess.open(LICENSE_PATH, FileAccess.WRITE)
+	if file != null:
+		file.store_string(JSON.stringify(dados_licenca, "\t"))
+		file.close()
+
+	auth_status_label.text = ""
+	if auth_overlay != null:
+		auth_overlay.visible = false
+	
+func _on_sair_app_pressed() -> void:
+	get_tree().quit()

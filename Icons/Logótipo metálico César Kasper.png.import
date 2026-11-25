@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cafwkgldy5edl"
-path="res://.godot/imported/Logótipo Elegante CK em Prata.png-07933c27b5b5333b174bc79ecae3179c.ctex"
+uid="uid://draatennd5w1a"
+path="res://.godot/imported/Logótipo metálico César Kasper.png-4748696d996379baff900ebab32a5679.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Logótipo Elegante CK em Prata.png"
-dest_files=["res://.godot/imported/Logótipo Elegante CK em Prata.png-07933c27b5b5333b174bc79ecae3179c.ctex"]
+source_file="res://Icons/Logótipo metálico César Kasper.png"
+dest_files=["res://.godot/imported/Logótipo metálico César Kasper.png-4748696d996379baff900ebab32a5679.ctex"]
 
 [params]
 

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://draatennd5w1a"
-path="res://.godot/imported/Logótipo metálico César Kasper.png-a343776b1eaf4299b7a1b56399abc46b.ctex"
+uid="uid://ii8206c7vasw"
+path="res://.godot/imported/Monograma CK metálico em fundo teal.png-3d608c9c698574894939f4991dd983da.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Logótipo metálico César Kasper.png"
-dest_files=["res://.godot/imported/Logótipo metálico César Kasper.png-a343776b1eaf4299b7a1b56399abc46b.ctex"]
+source_file="res://Icons/Monograma CK metálico em fundo teal.png"
+dest_files=["res://.godot/imported/Monograma CK metálico em fundo teal.png-3d608c9c698574894939f4991dd983da.ctex"]
 
 [params]
 

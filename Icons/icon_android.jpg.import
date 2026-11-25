@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://ii8206c7vasw"
-path="res://.godot/imported/Monograma CK metálico em fundo teal.png-330813499af7622251240aab1149c65c.ctex"
+uid="uid://d1d1a3rq8kuo2"
+path="res://.godot/imported/icon_android.jpg-f8e1c93541fd776c8866c6c82df257d9.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Monograma CK metálico em fundo teal.png"
-dest_files=["res://.godot/imported/Monograma CK metálico em fundo teal.png-330813499af7622251240aab1149c65c.ctex"]
+source_file="res://Icons/icon_android.jpg"
+dest_files=["res://.godot/imported/icon_android.jpg-f8e1c93541fd776c8866c6c82df257d9.ctex"]
 
 [params]
 
