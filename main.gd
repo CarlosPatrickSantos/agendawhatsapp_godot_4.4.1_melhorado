@@ -485,80 +485,173 @@ func _licenca_local_valida() -> bool:
 	return hoje <= expira_em
 
 
+
 func _mostrar_tela_login() -> void:
 	if auth_overlay != null:
 		auth_overlay.visible = true
 		return
 
 	auth_overlay = ColorRect.new()
-	auth_overlay.color = Color(0.08, 0.14, 0.11, 0.88)
+	auth_overlay.color = Color(0.025, 0.09, 0.085, 0.90)
 	auth_overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	auth_overlay.z_index = 100
 	add_child(auth_overlay)
 
 	var center := CenterContainer.new()
 	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	center.add_theme_constant_override("margin_left", 18)
+	center.add_theme_constant_override("margin_right", 18)
 	auth_overlay.add_child(center)
 
 	var card := PanelContainer.new()
-	card.custom_minimum_size = Vector2(560, 0)
-	card.add_theme_stylebox_override("panel", _panel_style(Color.WHITE))
+	card.custom_minimum_size = Vector2(
+		minf(get_viewport_rect().size.x - 36.0, 560.0), 0
+	)
+
+	# Cartão branco com bordas arredondadas e sombra.
+	var card_style := StyleBoxFlat.new()
+	card_style.bg_color = Color("#FFFFFF")
+	card_style.set_corner_radius_all(24)
+	card_style.set_border_width_all(1)
+	card_style.border_color = Color("#D8E9E0")
+	card_style.shadow_color = Color(0.0, 0.12, 0.09, 0.22)
+	card_style.shadow_size = 18
+	card_style.shadow_offset = Vector2(0, 7)
+	card.add_theme_stylebox_override("panel", card_style)
 	center.add_child(card)
 
 	var margin := MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", 26)
 	margin.add_theme_constant_override("margin_right", 26)
-	margin.add_theme_constant_override("margin_top", 26)
-	margin.add_theme_constant_override("margin_bottom", 26)
+	margin.add_theme_constant_override("margin_top", 30)
+	margin.add_theme_constant_override("margin_bottom", 30)
 	card.add_child(margin)
 
 	var box := VBoxContainer.new()
-	box.add_theme_constant_override("separation", 16)
+	box.add_theme_constant_override("separation", 17)
 	margin.add_child(box)
 
+	# Pequeno detalhe superior.
+	var badge_style := StyleBoxFlat.new()
+	badge_style.bg_color = Color("#eaf6ef")
+	badge_style.border_color = Color("#16834B")
+	badge_style.set_border_width_all(2)
+	badge_style.set_corner_radius_all(10)
+	badge_style.content_margin_left = 14
+	badge_style.content_margin_right = 14
+	badge_style.content_margin_top = 8
+	badge_style.content_margin_bottom = 8
+
+	var badge_panel := PanelContainer.new()
+	badge_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	badge_panel.add_theme_stylebox_override("panel", badge_style)
+	box.add_child(badge_panel)
+
+	var lbl_marca := Label.new()
+	lbl_marca.text = "C K  •  AGENDA"
+	lbl_marca.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	lbl_marca.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	lbl_marca.add_theme_font_size_override("font_size", 32)
+	lbl_marca.add_theme_color_override("font_color", Color("#14532d"))
+	lbl_marca.add_theme_color_override("font_outline_color", Color("#14532d"))
+	lbl_marca.add_theme_constant_override("outline_size", 2)
+	badge_panel.add_child(lbl_marca)
+
+# Título principal.
 	var lbl_titulo := Label.new()
-	lbl_titulo.text = "Ativar AgendaWhatsApp"
-	lbl_titulo.add_theme_font_size_override("font_size", 36)
-	lbl_titulo.add_theme_color_override("font_color", Color("#153d2b"))
+	lbl_titulo.text = "Bem-vindo!"
+	lbl_titulo.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	lbl_titulo.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	lbl_titulo.add_theme_font_size_override("font_size", 32)
+	lbl_titulo.add_theme_color_override("font_color", Color("#153D2B"))
 	box.add_child(lbl_titulo)
 
 	var lbl_desc := Label.new()
-	lbl_desc.text = "Informe seu código de acesso e senha."
-	lbl_desc.add_theme_font_size_override("font_size", 36)
+	lbl_desc.text = "Acesse com segurança."
+	lbl_desc.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	lbl_desc.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	lbl_desc.add_theme_font_size_override("font_size", 32)
 	lbl_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	lbl_desc.add_theme_color_override("font_color", Color("#52645a"))
+	lbl_desc.add_theme_color_override("font_color", Color("#64776C"))
 	box.add_child(lbl_desc)
 
+	# Estilo dos campos.
+	var input_normal := StyleBoxFlat.new()
+	input_normal.bg_color = Color("#F3F8F5")
+	input_normal.set_corner_radius_all(13)
+	input_normal.set_border_width_all(1)
+	input_normal.border_color = Color("#D6E5DC")
+	input_normal.content_margin_left = 14
+	input_normal.content_margin_right = 14
+	input_normal.content_margin_top = 10
+	input_normal.content_margin_bottom = 10
+
+	var input_focus := StyleBoxFlat.new()
+	input_focus.bg_color = Color("#FFFFFF")
+	input_focus.set_corner_radius_all(13)
+	input_focus.set_border_width_all(2)
+	input_focus.border_color = Color("#16834B")
+	input_focus.content_margin_left = 14
+	input_focus.content_margin_right = 14
+	input_focus.content_margin_top = 10
+	input_focus.content_margin_bottom = 10
+
 	codigo_input = LineEdit.new()
-	codigo_input.placeholder_text = "Código (ex.: Nome )"
-	codigo_input.custom_minimum_size = Vector2(0, 56)
-	codigo_input.add_theme_font_size_override("font_size", 36)
+	codigo_input.placeholder_text = "Código de acesso"
+	codigo_input.custom_minimum_size = Vector2(0, 64)
+	codigo_input.add_theme_font_size_override("font_size", 44)
+	codigo_input.add_theme_color_override("font_color", Color("#20352A"))
+	codigo_input.add_theme_color_override("font_placeholder_color", Color("#91A198"))
+	codigo_input.add_theme_stylebox_override("normal", input_normal)
+	codigo_input.add_theme_stylebox_override("focus", input_focus)
 	box.add_child(codigo_input)
 
 	senha_input = LineEdit.new()
-	senha_input.placeholder_text = "Senha"
+	senha_input.placeholder_text = "Sua senha"
 	senha_input.secret = true
-	senha_input.custom_minimum_size = Vector2(0, 56)
-	senha_input.add_theme_font_size_override("font_size", 36)
+	senha_input.custom_minimum_size = Vector2(0, 64)
+	senha_input.add_theme_font_size_override("font_size", 44)
+	senha_input.add_theme_color_override("font_color", Color("#20352A"))
+	senha_input.add_theme_color_override("font_placeholder_color", Color("#91A198"))
+	senha_input.add_theme_stylebox_override("normal", input_normal)
+	senha_input.add_theme_stylebox_override("focus", input_focus)
 	box.add_child(senha_input)
 
+	# Botão verde com cantos arredondados.
 	auth_btn = Button.new()
 	auth_btn.text = "Entrar"
-	auth_btn.custom_minimum_size = Vector2(0, 62)
-	auth_btn.add_theme_font_size_override("font_size", 36)
+	auth_btn.custom_minimum_size = Vector2(0, 68)
+	auth_btn.add_theme_font_size_override("font_size", 50)
 	auth_btn.add_theme_color_override("font_color", Color.WHITE)
-	auth_btn.add_theme_stylebox_override("normal", _button_style(Color("#16834b")))
-	auth_btn.add_theme_stylebox_override("hover", _button_style(Color("#116b3d")))
-	auth_btn.add_theme_stylebox_override("pressed", _button_style(Color("#0d5832")))
+
+	var btn_normal := StyleBoxFlat.new()
+	btn_normal.bg_color = Color("#16834B")
+	btn_normal.set_corner_radius_all(15)
+	btn_normal.shadow_color = Color(0.05, 0.35, 0.18, 0.18)
+	btn_normal.shadow_size = 5
+	btn_normal.shadow_offset = Vector2(0, 3)
+
+	var btn_hover := StyleBoxFlat.new()
+	btn_hover.bg_color = Color("#116B3D")
+	btn_hover.set_corner_radius_all(15)
+
+	var btn_pressed := StyleBoxFlat.new()
+	btn_pressed.bg_color = Color("#0D5832")
+	btn_pressed.set_corner_radius_all(15)
+
+	auth_btn.add_theme_stylebox_override("normal", btn_normal)
+	auth_btn.add_theme_stylebox_override("hover", btn_hover)
+	auth_btn.add_theme_stylebox_override("pressed", btn_pressed)
 	auth_btn.pressed.connect(_on_login_pressed)
 	box.add_child(auth_btn)
 
 	auth_status_label = Label.new()
 	auth_status_label.text = ""
-	auth_status_label.add_theme_font_size_override("font_size", 20)
+	auth_status_label.add_theme_font_size_override("font_size", 36)
 	auth_status_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	auth_status_label.add_theme_color_override("font_color", Color("#b42318"))
+	auth_status_label.add_theme_color_override("font_color", Color("#B42318"))
 	box.add_child(auth_status_label)
+
 
 
 func _on_login_pressed() -> void:
