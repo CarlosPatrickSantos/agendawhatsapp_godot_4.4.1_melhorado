@@ -497,11 +497,22 @@ func _mostrar_tela_login() -> void:
 	auth_overlay.z_index = 100
 	add_child(auth_overlay)
 
-	var center := CenterContainer.new()
-	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	center.add_theme_constant_override("margin_left", 18)
-	center.add_theme_constant_override("margin_right", 18)
-	auth_overlay.add_child(center)
+	var top_container := MarginContainer.new()
+	top_container.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	top_container.add_theme_constant_override("margin_left", 18)
+	top_container.add_theme_constant_override("margin_right", 18)
+	top_container.add_theme_constant_override("margin_top", 24)
+	auth_overlay.add_child(top_container)
+
+	var v_wrap := VBoxContainer.new()
+	v_wrap.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	v_wrap.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	top_container.add_child(v_wrap)
+
+	var h_wrap := HBoxContainer.new()
+	h_wrap.alignment = BoxContainer.ALIGNMENT_CENTER
+	h_wrap.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	v_wrap.add_child(h_wrap)
 
 	var card := PanelContainer.new()
 	card.custom_minimum_size = Vector2(
@@ -518,17 +529,17 @@ func _mostrar_tela_login() -> void:
 	card_style.shadow_size = 18
 	card_style.shadow_offset = Vector2(0, 7)
 	card.add_theme_stylebox_override("panel", card_style)
-	center.add_child(card)
+	h_wrap.add_child(card)
 
 	var margin := MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 26)
-	margin.add_theme_constant_override("margin_right", 26)
-	margin.add_theme_constant_override("margin_top", 30)
-	margin.add_theme_constant_override("margin_bottom", 30)
+	margin.add_theme_constant_override("margin_left", 24)
+	margin.add_theme_constant_override("margin_right", 24)
+	margin.add_theme_constant_override("margin_top", 22)
+	margin.add_theme_constant_override("margin_bottom", 22)
 	card.add_child(margin)
 
 	var box := VBoxContainer.new()
-	box.add_theme_constant_override("separation", 17)
+	box.add_theme_constant_override("separation", 13)
 	margin.add_child(box)
 
 	# Pequeno detalhe superior.
@@ -539,8 +550,8 @@ func _mostrar_tela_login() -> void:
 	badge_style.set_corner_radius_all(10)
 	badge_style.content_margin_left = 14
 	badge_style.content_margin_right = 14
-	badge_style.content_margin_top = 8
-	badge_style.content_margin_bottom = 8
+	badge_style.content_margin_top = 7
+	badge_style.content_margin_bottom = 7
 
 	var badge_panel := PanelContainer.new()
 	badge_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -551,18 +562,18 @@ func _mostrar_tela_login() -> void:
 	lbl_marca.text = "C K  •  AGENDA"
 	lbl_marca.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	lbl_marca.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	lbl_marca.add_theme_font_size_override("font_size", 32)
+	lbl_marca.add_theme_font_size_override("font_size", 40)
 	lbl_marca.add_theme_color_override("font_color", Color("#14532d"))
 	lbl_marca.add_theme_color_override("font_outline_color", Color("#14532d"))
 	lbl_marca.add_theme_constant_override("outline_size", 2)
 	badge_panel.add_child(lbl_marca)
 
-# Título principal.
+	# Título principal.
 	var lbl_titulo := Label.new()
 	lbl_titulo.text = "Bem-vindo!"
 	lbl_titulo.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	lbl_titulo.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	lbl_titulo.add_theme_font_size_override("font_size", 32)
+	lbl_titulo.add_theme_font_size_override("font_size", 36)
 	lbl_titulo.add_theme_color_override("font_color", Color("#153D2B"))
 	box.add_child(lbl_titulo)
 
@@ -583,8 +594,8 @@ func _mostrar_tela_login() -> void:
 	input_normal.border_color = Color("#D6E5DC")
 	input_normal.content_margin_left = 14
 	input_normal.content_margin_right = 14
-	input_normal.content_margin_top = 10
-	input_normal.content_margin_bottom = 10
+	input_normal.content_margin_top = 9
+	input_normal.content_margin_bottom = 9
 
 	var input_focus := StyleBoxFlat.new()
 	input_focus.bg_color = Color("#FFFFFF")
@@ -593,13 +604,13 @@ func _mostrar_tela_login() -> void:
 	input_focus.border_color = Color("#16834B")
 	input_focus.content_margin_left = 14
 	input_focus.content_margin_right = 14
-	input_focus.content_margin_top = 10
-	input_focus.content_margin_bottom = 10
+	input_focus.content_margin_top = 9
+	input_focus.content_margin_bottom = 9
 
 	codigo_input = LineEdit.new()
 	codigo_input.placeholder_text = "Código de acesso"
-	codigo_input.custom_minimum_size = Vector2(0, 64)
-	codigo_input.add_theme_font_size_override("font_size", 44)
+	codigo_input.custom_minimum_size = Vector2(0, 72)
+	codigo_input.add_theme_font_size_override("font_size", 46)
 	codigo_input.add_theme_color_override("font_color", Color("#20352A"))
 	codigo_input.add_theme_color_override("font_placeholder_color", Color("#91A198"))
 	codigo_input.add_theme_stylebox_override("normal", input_normal)
@@ -609,8 +620,8 @@ func _mostrar_tela_login() -> void:
 	senha_input = LineEdit.new()
 	senha_input.placeholder_text = "Sua senha"
 	senha_input.secret = true
-	senha_input.custom_minimum_size = Vector2(0, 64)
-	senha_input.add_theme_font_size_override("font_size", 44)
+	senha_input.custom_minimum_size = Vector2(0, 72)
+	senha_input.add_theme_font_size_override("font_size", 46)
 	senha_input.add_theme_color_override("font_color", Color("#20352A"))
 	senha_input.add_theme_color_override("font_placeholder_color", Color("#91A198"))
 	senha_input.add_theme_stylebox_override("normal", input_normal)
@@ -620,8 +631,8 @@ func _mostrar_tela_login() -> void:
 	# Botão verde com cantos arredondados.
 	auth_btn = Button.new()
 	auth_btn.text = "Entrar"
-	auth_btn.custom_minimum_size = Vector2(0, 68)
-	auth_btn.add_theme_font_size_override("font_size", 50)
+	auth_btn.custom_minimum_size = Vector2(0, 72)
+	auth_btn.add_theme_font_size_override("font_size", 46)
 	auth_btn.add_theme_color_override("font_color", Color.WHITE)
 
 	var btn_normal := StyleBoxFlat.new()
@@ -647,7 +658,7 @@ func _mostrar_tela_login() -> void:
 
 	auth_status_label = Label.new()
 	auth_status_label.text = ""
-	auth_status_label.add_theme_font_size_override("font_size", 36)
+	auth_status_label.add_theme_font_size_override("font_size", 32)
 	auth_status_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	auth_status_label.add_theme_color_override("font_color", Color("#B42318"))
 	box.add_child(auth_status_label)
